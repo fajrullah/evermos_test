@@ -1,7 +1,8 @@
 # evermos_test
 Assuming Case:
 
-Those cases might be caused by either coding Issue or DB issue commonly, but are not limited:
+Those cases might be caused by either coding Issue or DB issue commonly, but are not limited
+
 a. In Coding sides : 
   - the issue has appeared because the function for decreasing QTY of product was wrong.
   - it might be no function for checking the QTY before decreasing.
