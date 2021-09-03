@@ -1,0 +1,23 @@
+{
+  "name": "evermos_test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "game": "node ./treasureHunt.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fajrullah/evermos_test.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/fajrullah/evermos_test/issues"
+  },
+  "homepage": "https://github.com/fajrullah/evermos_test#readme",
+  "dependencies": {
+    "prompt-sync": "^4.2.0"
+  }
+}
