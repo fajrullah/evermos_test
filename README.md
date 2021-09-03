@@ -3,7 +3,7 @@ Assuming Case:
 
 Those cases might be caused by either coding Issue or DB issue commonly, but are not limited
 
-a. In Coding sides : 
+# A. In Coding sides : 
   - the issue has appeared because the function for decreasing QTY of product was wrong.
   - it might be no function for checking the QTY before decreasing.
   - the function for decreasing or input the orders is "Async" function without "await" before decreasing, so the 
@@ -26,14 +26,14 @@ a. In Coding sides :
 
   - in other applications / services that use same table does wrong calculation so the QTY is not sync
 
-b. In DB Sides : 
+# B. In DB Sides : 
 
   There are more than one QTY pointing at
 
   - ie : there are table "stock" for product with particular QTY and inside table "product" itself has QTY so there are two table for describing QTY.
 
 
-Solutions Offered:
+# Solutions Offered:
 
   - HOLD the QTY when status order is "PENDING PAYMENT" or before it then release QTY if no payment has received.
   - always check the QTY before insert to CART.
