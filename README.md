@@ -12,21 +12,29 @@ a. In Coding sides :
   - there are MATH problem, ie : '10' - 1 = NaN
   - Backend shows wrong QTY to FE.
   - there is no HOLD function for product if out of stock or similiar.
-  - if the System adopted "QUEUE" role so it might be released QTY wrongly. 
+  - if the System adopted "QUEUE" role so it might be released QTY wrongly.
+
   - Cart did wrong QTY, assuming that QTY is out of Stock for particular Product but in cart the QTY is available.
+
     ie: in Active Cart for "Product A" qty = 2 but "Product A" is actually out of stock, so there is no sync between cart and stock.
+
     ie: can added into Cart even though the "Product A" was out of stock.
+
   - Check out function did wrong validation, in active cart there are products with status "out of stock" but the checkout allowed to process the cart to be an order.
 
   Not Limited to: 
+
   - in other applications / services that use same table does wrong calculation so the QTY is not sync
 
 b. In DB Sides : 
+
   There are more than one QTY pointing at
+
   - ie : there are table "stock" for product with particular QTY and inside table "product" itself has QTY so there are two table for describing QTY.
 
 
 Solutions Offered:
+
   - HOLD the QTY when status order is "PENDING PAYMENT" or before it then release QTY if no payment has received.
   - always check the QTY before insert to CART.
   - in Cart always gets first about current status of product to make sure the data is sync.
