@@ -21,7 +21,7 @@ class Services {
         return response(res, true)
       }
 
-      return response(res, { info: 'either out of stock or not active', invalid: { ...result } }, 400)
+      return response(res, { info: 'either one of following reasons out of stock, not active, or quantity requested is bigger than stock', invalid: { ...result } }, 400)
     } catch (error) {
       next(error)
     }
@@ -29,13 +29,13 @@ class Services {
 
   async insertCarts (req, res, next) {
     try {
-      const { productID } = req.body
+      const { productID, quantity } = req.body
 
       // we can put this into middleware
-      if (!productID) {
-        return response(res, { info: 'empty productID' }, 400)
+      if (!productID || !quantity) {
+        return response(res, { info: 'empty either productID or quantity' }, 400)
       }
-      const [isCreated, result] = await models.insertCarts(productID)
+      const [isCreated, result] = await models.insertCarts({ productID, quantity })
       if (isCreated) {
         return response(res, true)
       }

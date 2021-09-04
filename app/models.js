@@ -21,7 +21,7 @@ class Models {
     // validate each product
     // make sure all the products within cart are valid
     // false if one product gets invalid
-    const [isProductValid, data] = await this.validateTheProducts(arrProductID)
+    const [isProductValid, data] = await this.validateTheProducts(arrProductID, listProductID)
 
     if (isProductValid) {
       const result = await this.storeOrders(where)
@@ -31,10 +31,10 @@ class Models {
     }
   }
 
-  async insertCarts (productID) {
-    const [isProductValid, data] = await this.validateTheProducts([productID])
+  async insertCarts ({ productID, quantity }) {
+    const [isProductValid, data] = await this.validateTheProducts([productID], [{ productID, quantity }])
     if (isProductValid) {
-      const result = await this.storeCarts(productID)
+      const result = await this.storeCarts({ productID, quantity })
       return [result, data]
     } else {
       return [false, data]
@@ -71,10 +71,81 @@ class Models {
   async findCartItems (where) {
     const result = await CartItems.findAll({
       where,
-      attributes: ['productID'],
+      attributes: ['productID', 'quantity'],
       raw: true
     })
     return result
+  }
+
+  async validateStock ({ productID, quantity }) {
+    const result = await Products.findOne({
+      where: {
+        id: productID,
+        stock: {
+          [Sequelize.Op.gte]: quantity
+        }
+      },
+      raw: true
+    })
+    return !!result
+  }
+
+  async storeCarts ({ productID, quantity }) {
+    // Find the current price
+    const { price } = await Products.findOne({
+      where: {
+        id: productID
+      },
+      attributes: ['id', 'price'],
+      raw: true
+    })
+    // no price means can not process this item
+    if (!price) {
+      throw Error('this product is invalid')
+    }
+    // check if cart exist get the data else create the cart
+    const [carts, isCreated] = await Carts.findOrCreate({
+      defaults: {
+        totalAmount: parseInt(price) * parseInt(quantity),
+        cartActive: true
+      },
+      where: { cartActive: true }
+    })
+
+    if (!isCreated) {
+      // check if cart items exist get the data else create the cart items
+      const [items, isCreatedItems] = await CartItems.findOrCreate({
+        defaults: {
+          quantity,
+          price
+        },
+        where: { cartID: carts.id, productID }
+      })
+
+      if (!isCreatedItems) {
+        const itemsUpdate = await CartItems.update(
+          {
+            quantity,
+            price
+          },
+          {
+            where: { cartID: carts.id, productID }
+          }
+        )
+        this.updateTotalAmount(carts.id)
+        return [true, { info: 'update item', itemsUpdate }]
+      }
+      this.updateTotalAmount(carts.id)
+      return [true, { info: 'create an item', items }]
+    }
+
+    // if cart exist then update the item
+    const items = await CartItems.create({
+      productID, quantity, price, cartID: carts.id
+    })
+
+    this.updateTotalAmount(carts.id)
+    return [true, { info: 'create an item', items }]
   }
 
   async storeOrders (where) {
@@ -88,7 +159,10 @@ class Models {
     })
     let totalAmount = 0
     result.forEach(key => {
-      totalAmount = totalAmount + (parseInt(key.quantity) * parseInt(key.price))
+      const { quantity, price, productID } = key
+      // this decreasing the stock / qty in table products
+      this.decreasingQTY({ productID, quantity })
+      totalAmount = totalAmount + (parseInt(quantity) * parseInt(price))
     })
     const objData = {
       cartID,
@@ -96,7 +170,7 @@ class Models {
       totalAmount,
       orderitems: result
     }
-    const create = await Orders.create(objData, {
+    await Orders.create(objData, {
       include: [
         {
           as: 'orderitems',
@@ -111,13 +185,39 @@ class Models {
     }
   }
 
-  async validateTheProducts (array) {
+  async decreasingQTY ({ productID, quantity }) {
+    const { stock } = await Products.findOne({
+      where: {
+        id: productID
+      }
+    })
+    const update = await Products.update(
+      {
+        stock: parseInt(stock) - parseInt(quantity)
+      },
+      {
+        where: { id: productID }
+      }
+    )
+    return update
+  }
+
+  async validateTheProducts (array, raw) {
+    const orObject = raw.map(key => {
+      return {
+        id: key.productID,
+        stock: {
+          [Sequelize.Op.lt]: parseInt(key.quantity)
+        }
+      }
+    })
     const result = await Products.findOne({
       where: {
         id: {
           [Sequelize.Op.in]: array
         },
         [Sequelize.Op.or]: [
+          ...orObject,
           { isActive: false },
           { isOutOfStock: true },
           {
@@ -131,6 +231,43 @@ class Models {
       raw: true
     })
     return [!result, result]
+  }
+
+  async updateTotalAmount (cartID) {
+    /**
+     * Always check the price, somehow the price possible change whenever seller wanted
+     */
+    const getProductID = await CartItems.findAll({
+      where: {
+        cartID
+      },
+      attributes: ['productID', 'quantity']
+    })
+    const bulkPrice = await Products.findAll({
+      where: {
+        id: {
+          [Sequelize.Op.in]: this.objectToArray(getProductID)
+        }
+      },
+      attributes: ['price', 'id']
+    })
+    const objArray = {}
+    getProductID.forEach((key) => {
+      objArray[key.productID] = key
+    })
+    let totalAmount = 0
+    bulkPrice.forEach(key => {
+      totalAmount = totalAmount + (parseInt(objArray[key.id].quantity) * parseInt(key.price))
+    })
+    await Carts.update(
+      {
+        totalAmount
+      },
+      {
+        where: { id: cartID }
+      }
+    )
+    return true
   }
 
   objectToArray (data) {

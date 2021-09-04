@@ -16,6 +16,9 @@ Those cases might be caused by either coding Issue or DB issue commonly, but are
 
   - Cart did wrong QTY, assuming that QTY is out of Stock for particular Product but in cart the QTY is available.
 
+    ie: cart still accepted even though the requested quantity is greater than stock
+    assuming the stock 10 the requested 12 or greater
+
     ie: in Active Cart for "Product A" qty = 2 but "Product A" is actually out of stock, so there is no sync between cart and stock.
 
     ie: can added into Cart even though the "Product A" was out of stock.
