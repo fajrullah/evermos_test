@@ -27,6 +27,7 @@ sequelize.sync()
   .catch(_err => {
     console.log(_err, '#### Something Wrong ####')
     console.log('Make sure .env is correct')
+    console.log('Make sure .env is correct')
   })
 initModels(sequelize)
 module.exports = { sequelize }
