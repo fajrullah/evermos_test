@@ -24,6 +24,9 @@ sequelize.sync()
     console.log('#### Generate The Table Completed ####')
     check()
   })
-  .catch(_err => console.log(_err, '#### Something Wrong ####'))
+  .catch(_err => {
+    console.log(_err, '#### Something Wrong ####')
+    console.log('Make sure .env is correct')
+  })
 initModels(sequelize)
 module.exports = { sequelize }
