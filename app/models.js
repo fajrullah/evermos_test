@@ -43,7 +43,19 @@ class Models {
 
   async findAllOrders (where = {}) {
     const query = await Orders.findAll({
-      where
+      where,
+      include: [
+        {
+          as: 'orderitems',
+          model: OrderItems,
+          include: [
+            {
+              as: 'products',
+              model: Products
+            }
+          ]
+        }
+      ]
     })
     return query
   }
