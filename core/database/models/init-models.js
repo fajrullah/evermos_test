@@ -12,9 +12,9 @@ function initModels (sequelize) {
   const orderitems = _orderitems(sequelize, DataTypes)
   const products = _products(sequelize, DataTypes)
 
-  carts.hasMany(cartitems, { foreignKey: 'cartID', as: 'carts' })
+  carts.hasMany(cartitems, { foreignKey: 'cartID', as: 'consumerCarts' })
   cartitems.belongsTo(carts, {
-    as: 'cartitems',
+    as: 'consumerCartItems',
     foreignKey: 'cartID',
     constraints: false
   })

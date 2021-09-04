@@ -12,10 +12,12 @@ module.exports = (app) => {
   app
     .route('/carts')
     .get(Services.getCarts)
+    .post(Services.insertCarts)
 
   app
     .route('/orders')
     .get(Services.getOrders)
+    .post(Services.createOrders)
 
   app
     .route('/seeding')

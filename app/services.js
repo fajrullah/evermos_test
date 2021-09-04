@@ -6,6 +6,46 @@
 const { response } = require('../core')
 const models = require('./models')
 class Services {
+  async createOrders (req, res, next) {
+    try {
+      const { cartID } = req.body
+
+      // we can put this into middleware
+      if (!cartID) {
+        return response(res, { info: 'empty cartID' }, 400)
+      }
+
+      const [isCreated, result] = await models.createOrders({ cartID })
+
+      if (isCreated) {
+        return response(res, true)
+      }
+
+      return response(res, { info: 'either out of stock or not active', invalid: { ...result } }, 400)
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  async insertCarts (req, res, next) {
+    try {
+      const { productID } = req.body
+
+      // we can put this into middleware
+      if (!productID) {
+        return response(res, { info: 'empty productID' }, 400)
+      }
+      const [isCreated, result] = await models.insertCarts(productID)
+      if (isCreated) {
+        return response(res, true)
+      }
+
+      return response(res, { info: 'either out of stock or not active', invalid: { ...result } }, 400)
+    } catch (error) {
+      next(error)
+    }
+  }
+
   async getProducts (req, res, next) {
     try {
       const result = await models.findAllProducts()
