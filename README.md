@@ -10,6 +10,7 @@ $ cp .env.example .env
 ```
 
 Change the .env's value
+
 place .env in root project, same level with .env.example
 ```
 # .env
