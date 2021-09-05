@@ -29,6 +29,7 @@ ISDIALECT=mysql
 ```
 make sure you have DB that you listed on .env
 the DB must exist unless can not running
+support MySQL, MariaDB, SQLite, PostgreSQ and Microsoft SQL Server databases
 ```
 
 ## Usage
