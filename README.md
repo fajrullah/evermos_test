@@ -1,9 +1,100 @@
-# evermos_test
+# EVERMOS case test
+
+## Installation
+```
+$ npm install
+```
+
+```
+$ cp .env.example .env
+```
+
+Change the .env's value
+```
+# .env
+# APPLICATION
+PORT=5445
+NODE_ENV=production
+VERSION=v1.0.0
+
+# DATABASE
+ISDATABASENAME=db_example
+ISUSERNAME=root
+ISPASSWORD=
+ISHOSTDATABASE=localhost
+ISDIALECT=mysql
+```
+## Important !
+
+```
+make sure you have DB that you listed on .env
+the DB must exist unless can not running
+```
+
+## Usage
+
+running for treasure hunt
+```
+npm run game
+```
+
+running for PoC
+```
+npm run start
+```
+### PoC Section assuming PORT 5445
+
+#### Seeding and destroy
+Seeding Data
+```
+curl --location --request GET 'localhost:5445/seeding'
+```
+Destroy
+```
+curl --location --request GET 'localhost:5445/products'
+```
+
+#### Accessing resources
+Get Active Cart
+```
+curl --location --request GET 'localhost:5445/carts'
+```
+Get All Orders
+```
+curl --location --request GET 'localhost:5445/orders'
+```
+Get All Products
+```
+curl --location --request GET 'localhost:5445/products'
+```
+
+#### Cart and Checkout
+
+Store Product to cart
+```
+curl --location --request POST 'localhost:5445/carts' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "productID": 2,
+    "quantity": 2
+}'
+```
+
+Checkout the Cart
+```
+curl --location --request POST 'localhost:5445/orders' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "cartID": 1
+}'
+```
+
+## Section Explanation
 Assuming Case:
 
 Those cases might be caused by either coding Issue or DB issue commonly, but are not limited
 
-# A. In Coding sides : 
+### A. In Coding sides : 
   - the issue has appeared because the function for decreasing QTY of product was wrong.
   - it might be no function for checking the QTY before decreasing.
   - the function for decreasing or input the orders is "Async" function without "await" before decreasing, so the 
@@ -29,14 +120,14 @@ Those cases might be caused by either coding Issue or DB issue commonly, but are
 
   - in other applications / services that use same table does wrong calculation so the QTY is not sync
 
-# B. In DB Sides : 
+### B. In DB Sides : 
 
   There are more than one QTY pointing at
 
   - ie : there are table "stock" for product with particular QTY and inside table "product" itself has QTY so there are two table for describing QTY.
 
 
-# Solutions Offered:
+## Solutions Offered:
 
   - HOLD the QTY when status order is "PENDING PAYMENT" or before it then release QTY if no payment has received.
   - always check the QTY before insert to CART.
